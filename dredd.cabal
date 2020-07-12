@@ -1,0 +1,47 @@
+cabal-version:       3.0
+name:                dredd
+version:             0.1.0.0
+synopsis:            Automatic law checking.
+description:
+-- bug-reports:
+license:             AGPL-3.0-or-later
+license-file:        LICENSE
+author:              Greg Pfeil (greg@technomadic.org)
+maintainer:          Greg Pfeil (greg@technomadic.org)
+copyright:           Greg Pfeil 2020
+-- category:
+build-type:          Simple
+extra-source-files:  CHANGELOG.md
+
+library
+  build-depends:       base >=4.14 && <4.15,
+                       directory,
+                       ghc,
+                       ghc-source-gen
+  default-language:    Haskell2010
+  exposed-modules:     Dredd,
+                       Dredd.Judge
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+
+library test-lib
+  build-depends:       base >=4.14 && <4.15,
+                       dredd,
+                       hedgehog
+  default-language:    Haskell2010
+  exposed-modules:     My.Test.Mod,
+                       My.Test.Mod.Gen
+  ghc-options:         -Wall -Werror -fplugin Dredd
+  hs-source-dirs:      test
+
+test-suite test-dredd
+  build-depends:       base,
+                       dredd,
+                       hedgehog-classes,
+                       test-lib
+  default-language:    Haskell2010
+  ghc-options:         -Wall -Werror
+  hs-source-dirs:      dredd
+  main-is:             Judge/Dredd.hs
+  other-modules:       Judge.Dredd.My.Test.Mod
+  type:                exitcode-stdio-1.0
