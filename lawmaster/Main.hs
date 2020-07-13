@@ -3,8 +3,7 @@
 import Data.List (delete, stripPrefix)
 import Data.Maybe (fromMaybe)
 import Data.String (fromString)
-import qualified GHC
-import qualified GHC.Paths as Paths
+import Dredd.IO
 import qualified GHC.SourceGen as SourceGen
 import qualified System.Environment as Environment
 import qualified System.FilePath as FilePath
@@ -53,5 +52,5 @@ main = do
       IO.withFile
       dst
       IO.WriteMode
-      (\h -> GHC.runGhc (Just Paths.libdir) . SourceGen.hPutPpr h . generateTestDriver "Main" =<< findTestModules src)
+      (\h -> writeModule h . generateTestDriver "Main" =<< findTestModules src)
     _ -> error "bad args"

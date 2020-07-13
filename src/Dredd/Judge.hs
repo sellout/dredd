@@ -2,10 +2,6 @@
 {-# language OverloadedStrings #-}
 {-# language TemplateHaskell #-}
 
--- | What to expose:
--- 1. a function starting from `ModSummary`, so we can use it as a `typeCheckResultAction`,
--- 2. a `main` taking a `String` on the command-line to be interpreted by `guessTarget`, and
--- 3. whatever kind of thing tasty-discover is provided as
 module Dredd.Judge where
 
 import Control.Arrow ((***))

@@ -26,9 +26,9 @@ library my-library-testing -- where `Gen`s and `Laws` are defined
 
 test-suite my-test
   build-depends:       base,
+                       hedgehog-classes,
                        my-library,
-					   my-library-testing,
-                       hedgehog-classes
+                       my-library-testing
   default-language:    Haskell2010
   hs-source-dirs:      dredd
   main-is:             Main.hs                 -- you have to write this one

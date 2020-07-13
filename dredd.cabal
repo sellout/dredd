@@ -16,11 +16,13 @@ extra-source-files:  CHANGELOG.md
 library
   build-depends:       base >=4.14 && <4.15,
                        directory,
+                       filepath,
                        ghc,
                        ghc-paths,
                        ghc-source-gen
   default-language:    Haskell2010
   exposed-modules:     Dredd,
+                       Dredd.IO,
                        Dredd.Judge
   ghc-options:         -Wall
   hs-source-dirs:      src
