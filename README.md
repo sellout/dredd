@@ -15,18 +15,20 @@ add a corresponding test suite. Here is a cabal example:
 name:                  my-library
 
 library
+  exposed-modules:     My.Test.Mod
   ...
   ghc-options:         -fplugin Dredd
 
 library my-library-testing -- where `Gen`s and `Laws` are defined
+  exposed-modules:     My.Test.Mod.Gen,
+                       My.Test.Mod.Laws
   ...
 
 test-suite my-test
   build-depends:       base,
                        my-library,
 					   my-library-testing,
-                       hedgehog-classes,
-                       test-lib
+                       hedgehog-classes
   default-language:    Haskell2010
   hs-source-dirs:      dredd
   main-is:             Main.hs                 -- you have to write this one
@@ -36,7 +38,7 @@ test-suite my-test
 
 `Main.hs` should look like
 ```haskell
-{-# OPTIONS_GHC -F -pgmF lawmaster #-}
+{-# options_ghc -F -pgmF lawmaster #-}
 ```
 
 ### NOTE
@@ -48,6 +50,13 @@ the tests require `lawmaster` to be installed.
 
 Currently, it expects things to be named in a particular way:
 
+- `Gen` and `Laws` need to be defined in a separate library, so they don't get recursively processed, looking for more laws to check;
+- `Gen`s need to be named `gen<Type>` and live in `<defining module>.Gen`, and must expect an `m a` for each type parameter;
+- `Laws` need to be named `<Class>Laws` and live in `<defining module>.Laws`;
+- the test suite needs to have `hs-source-dirs: dredd` (since that's where the generated modules will be put);
+- the test suite needs to have `main-is: Main.hs` ("dredd/Main.hs" needs to contain the `options_ghc` pragma);
+
+Here is a brief example:
 ```haskell
 module MyModule where
 
@@ -58,7 +67,6 @@ will generate a test module that looks like
 module Test.Dredd.MyModule (dreddLaws) where
 
 import Hedgehog.Classes
-import MyModule
 import MyModule.Gen
 
 dreddLaws :: [(String, [Laws])]
@@ -67,19 +75,20 @@ dreddLaws =
     ...
   ]
 ```
-and there should be a driver that builds something like
+and the generated driver looks something like
 ```haskell
-module Test.Dredd (main) where
+module Main (main) where
 
-import Hedgehog.Classes
-import qualified Test.Dredd.MyModule
+import Data.Functor (void)
+import Hedgehog.Classes (lawsCheckmMany)
+import qualified Judge.Dredd.MyModule.Gen
 
-main = void $ lawsCheckMany (Test.Dredd.MyModule.dreddLaws <> ...)
+main :: IO ()
+main = void . lawsCheckMany $ mconcat [Judge.Dredd.MyModule.Gen.dreddLaws, ...]
 ```
 
 ## ToDo
 
-- autogenerate the driver, akin to [tasty-discover](https://git.coop/decentral1se/tasty-discover)
 - omit tests that aren't satisfied (e.g., most `Laws` require `Eq` and `Show` instances, and we shouldn't generate tests for types that are missing those instances (or maybe create orphan standalone deriving instances in the generated test suite)
 - support parameterized instances (e.g., `Monoid a => Monoid (Maybe a)`), perhaps using [Exemplar](https://github.com/matt-noonan/exemplar)
-- allow configuration of names and locations for `Laws` and `Gen`s.
+- allow configuration of names and locations for `Laws` and `Gen`s (similarly, support other test frameworks).

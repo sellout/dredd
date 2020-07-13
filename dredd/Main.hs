@@ -1,1 +1,1 @@
-{-# OPTIONS_GHC -F -pgmF lawmaster #-}
+{-# options_ghc -F -pgmF lawmaster #-}
