@@ -17,6 +17,7 @@ library
   build-depends:       base >=4.14 && <4.15,
                        directory,
                        ghc,
+                       ghc-paths,
                        ghc-source-gen
   default-language:    Haskell2010
   exposed-modules:     Dredd,
@@ -24,24 +25,49 @@ library
   ghc-options:         -Wall
   hs-source-dirs:      src
 
-library test-lib
+executable lawmaster
   build-depends:       base >=4.14 && <4.15,
                        dredd,
-                       hedgehog
+                       filepath,
+                       ghc,
+                       ghc-paths,
+                       ghc-source-gen,
+                       Glob
   default-language:    Haskell2010
-  exposed-modules:     My.Test.Mod,
-                       My.Test.Mod.Gen
-  ghc-options:         -Wall -Werror -fplugin Dredd
-  hs-source-dirs:      test
+  ghc-options:         -Wall -Werror
+  hs-source-dirs:      lawmaster
+  main-is:             Main.hs
 
+-- An example library, which wants to have its laws tested.
+library test-lib
+  build-depends:       base >=4.14 && <4.15,
+                       dredd
+  default-language:    Haskell2010
+  exposed-modules:     My.Test.Mod
+  ghc-options:         -Wall -Werror -fplugin Dredd
+  hs-source-dirs:      test-lib
+
+-- The testing support library for the example library. (This is where the
+-- `Gen`s for any types and `Laws` for any classes are defined.)
+library test-lib-testing
+  build-depends:       base >=4.14 && <4.15,
+                       hedgehog,
+                       test-lib
+  default-language:    Haskell2010
+  exposed-modules:     My.Test.Mod.Gen
+  ghc-options:         -Wall -Werror
+  hs-source-dirs:      test-lib-testing
+     
+-- The test suite that tests the laws for the example library
 test-suite test-dredd
-  build-depends:       base,
+  build-depends:       base >=4.14 && <4.15,
                        dredd,
                        hedgehog-classes,
-                       test-lib
+                       test-lib,
+                       test-lib-testing
   default-language:    Haskell2010
   ghc-options:         -Wall -Werror
   hs-source-dirs:      dredd
-  main-is:             Judge/Dredd.hs
+  main-is:             Main.hs
   other-modules:       Judge.Dredd.My.Test.Mod
   type:                exitcode-stdio-1.0

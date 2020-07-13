@@ -9,9 +9,10 @@ module Dredd (plugin) where
 import Control.Arrow ((&&&))
 import Dredd.Judge
 import qualified GHC
+import qualified GHC.Paths as Paths
+import qualified GHC.SourceGen as SourceGen
 import qualified GhcPlugins
 import qualified MonadUtils
-import qualified Outputable
 import qualified Plugins
 import qualified TcRnTypes
 import qualified System.Directory as Directory
@@ -44,7 +45,8 @@ outputInstances _ _ env =
         IO.WriteMode
         (\h ->
             uncurry (*>)
-            $ (IO.hPutStr h . Outputable.showSDocUnsafe . Outputable.ppr . processInstances modu . TcRnTypes.tcg_insts &&& pure) env)
+            $ (GHC.runGhc (Just Paths.libdir) . SourceGen.hPutPpr h . processInstances modu . TcRnTypes.tcg_insts &&& pure) env
+        )
 
 plugin :: Plugins.Plugin
 plugin =
