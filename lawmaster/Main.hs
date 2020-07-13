@@ -15,16 +15,17 @@ generateTestDriver moduName tests =
   SourceGen.module'
     (Just moduName)
     (Just [SourceGen.var "main"])
-    ([ SourceGen.exposing (SourceGen.import' "Hedgehog.Classes") [SourceGen.var "lawsCheckMany"],
-       SourceGen.exposing (SourceGen.import' "Data.Functor") [SourceGen.var "void"]
+    ([ SourceGen.exposing (SourceGen.import' "Hedgehog.Main") [SourceGen.var "defaultMain"]
      ] <> fmap (SourceGen.qualified' . SourceGen.import') tests
     )
     [ SourceGen.typeSig "main" $ SourceGen.var "IO" SourceGen.@@ SourceGen.var "()",
       SourceGen.valBind "main"
-      $ SourceGen.op
-        (SourceGen.op (SourceGen.var "void") "." (SourceGen.var "lawsCheckMany"))
-        "$"
-        (SourceGen.var "mconcat" SourceGen.@@ SourceGen.list (fmap (SourceGen.var . flip SourceGen.qual "dreddLaws") tests))
+      $ SourceGen.var "defaultMain"
+        SourceGen.@@ SourceGen.list
+                     ( fmap
+                       (SourceGen.var . flip SourceGen.qual "dreddLaws")
+                       tests
+                     )
     ]
 
 findTestModules :: FilePath -> IO [SourceGen.ModuleNameStr]

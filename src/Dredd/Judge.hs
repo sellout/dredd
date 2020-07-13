@@ -33,15 +33,6 @@ loadModuleSummary modName = do
    modGraph <- GHC.depanal [] True
    pure . find ((== modName) . HscTypes.msHsFilePath) $ GHC.mgModSummaries modGraph
 
--- parseHaskell :: FilePath -> IO (Maybe (HsModule RdrName))
--- parseHaskell file = do
---     initStaticOpts
---     sbuf <- hGetStringBuffer file
---     let srcloc = mkSrcLoc (mkFastString file) 1 1
---     return $ case unP parseModule (mkPState defaultDynFlags sbuf srcloc) of
---         POk _ (L _ mdl) -> Just mdl
---         PFailed _ _     -> Nothing
-
 -- | We're often given a module that is "too early" in the process. This
 --   converts it to one that has what we need.
 processModule :: GHC.GhcMonad m => GHC.ModSummary -> m GHC.ModuleInfo
@@ -80,13 +71,18 @@ processInstances modu insts =
       (Just . fromString $ "Judge.Dredd." <> moduName)
       (Just [SourceGen.var "dreddLaws"])
       [ SourceGen.import' "Hedgehog.Classes",
+        SourceGen.exposing (SourceGen.import' "Data.Sort") [SourceGen.var "monoidSortAssocs"],
         SourceGen.import' . fromString $ moduName <> ".Gen"
       ]
-      [ SourceGen.typeSig lawFunctionName . SourceGen.listTy
-        $ SourceGen.tuple
-          [SourceGen.var "String", SourceGen.listTy $ SourceGen.var "Laws"],
-        SourceGen.valBind lawFunctionName . SourceGen.list
-        $ fmap processInstance insts
+      [ SourceGen.typeSig lawFunctionName
+        $ SourceGen.var "IO" SourceGen.@@ SourceGen.var "Bool",
+        SourceGen.valBind lawFunctionName
+        $ SourceGen.op
+          (SourceGen.var "lawsCheckMany")
+          "$"
+          ( SourceGen.var "monoidSortAssocs"
+            SourceGen.@@ SourceGen.list (fmap processInstance insts)
+          )
       ]
 
 fnHead :: (a -> a) -> [a] -> [a]

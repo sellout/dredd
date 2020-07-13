@@ -64,7 +64,9 @@ library test-lib-testing
 test-suite test-dredd
   build-depends:       base >=4.14 && <4.15,
                        dredd,
+                       hedgehog,
                        hedgehog-classes,
+                       sort,
                        test-lib,
                        test-lib-testing
   default-language:    Haskell2010
