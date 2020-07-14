@@ -29,6 +29,7 @@ test-suite my-test
                        hedgehog-classes,
                        my-library,
                        my-library-testing
+  build-tool-depends:  dredd:lawmaster
   default-language:    Haskell2010
   hs-source-dirs:      dredd
   main-is:             Main.hs                 -- you have to write this one
@@ -42,11 +43,6 @@ test-suite my-test
 ```
 
 The [test output](data/test-dredd.log) is just that from hedgehog-classes, but here you get all those property tests from a couple [small](test-lib/My/Test/Mod.hs) [modules](test-lib/My/Test/ModF.hs).
-
-### NOTE
-
-To test this package, it's necessary to do `cabal install && cabal test` because
-the tests require `lawmaster` to be installed.
 
 ## Caveats
 
