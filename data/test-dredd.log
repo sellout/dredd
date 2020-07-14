@@ -1,0 +1,100 @@
+Test suite test-dredd: RUNNING...
+
+Testing properties for common typeclasses...
+
+---------
+-- Meh --
+---------
+
+Show: ShowsPrec Zero   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showsPrec   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showList   ✓ <interactive> passed 100 tests.
+Eq: Transitive   ✓ <interactive> passed 100 tests.
+Eq: Symmetric   ✓ <interactive> passed 100 tests.
+Eq: Reflexive   ✓ <interactive> passed 100 tests.
+Eq: Negation   ✓ <interactive> passed 100 tests.
+Semigroup: Associativity   ✓ <interactive> passed 100 tests.
+Semigroup: Concatenation   ✓ <interactive> passed 100 tests.
+Semigroup: Times   ✓ <interactive> passed 100 tests.
+
+-----------
+-- Mep a --
+-----------
+
+Show: ShowsPrec Zero   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showsPrec   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showList   ✓ <interactive> passed 100 tests.
+Eq: Transitive   ✓ <interactive> passed 100 tests.
+Eq: Symmetric   ✓ <interactive> passed 100 tests.
+Eq: Reflexive   ✓ <interactive> passed 100 tests.
+Eq: Negation   ✓ <interactive> passed 100 tests.
+Semigroup: Associativity   ✓ <interactive> passed 100 tests.
+Semigroup: Concatenation   ✓ <interactive> passed 100 tests.
+Semigroup: Times   ✓ <interactive> passed 100 tests.
+
+------------
+-- Simple --
+------------
+
+Show: ShowsPrec Zero   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showsPrec   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showList   ✓ <interactive> passed 100 tests.
+Eq: Transitive   ✓ <interactive> passed 100 tests.
+Eq: Symmetric   ✓ <interactive> passed 100 tests.
+Eq: Reflexive   ✓ <interactive> passed 100 tests.
+Eq: Negation   ✓ <interactive> passed 100 tests.
+Semigroup: Associativity   ✓ <interactive> passed 100 tests.
+Semigroup: Concatenation   ✓ <interactive> passed 100 tests.
+Semigroup: Times   ✓ <interactive> passed 100 tests.
+Monoid: Left Identity   ✓ <interactive> passed 100 tests.
+Monoid: Right Identity   ✓ <interactive> passed 100 tests.
+Monoid: Associativity   ✓ <interactive> passed 100 tests.
+Monoid: Concatenation   ✓ <interactive> passed 100 tests.
+
+
+All tests succeeded
+
+Testing properties for common typeclasses...
+
+-------------
+-- MyIdent --
+-------------
+
+Foldable: Naturality   ✓ <interactive> passed 100 tests.
+Foldable: Identity   ✓ <interactive> passed 100 tests.
+Foldable: Composition   ✓ <interactive> passed 100 tests.
+Foldable: Sequence Naturality   ✓ <interactive> passed 100 tests.
+Foldable: Sequence Identity   ✓ <interactive> passed 100 tests.
+Foldable: Sequence Composition   ✓ <interactive> passed 100 tests.
+Foldable: foldMap   ✓ <interactive> passed 100 tests.
+Foldable: fmap   ✓ <interactive> passed 100 tests.
+Functor: Identity   ✓ <interactive> passed 100 tests.
+Functor: Composition   ✓ <interactive> passed 100 tests.
+Functor: Const   ✓ <interactive> passed 100 tests.
+Foldable: fold   ✓ <interactive> passed 100 tests.
+Foldable: foldMap   ✓ <interactive> passed 100 tests.
+Foldable: foldr   ✓ <interactive> passed 100 tests.
+Foldable: foldr'   ✓ <interactive> passed 100 tests.
+Foldable: foldl   ✓ <interactive> passed 100 tests.
+Foldable: foldl'   ✓ <interactive> passed 100 tests.
+Foldable: foldl1   ✓ <interactive> passed 100 tests.
+Foldable: foldr1   ✓ <interactive> passed 100 tests.
+Foldable: toList   ✓ <interactive> passed 100 tests.
+Foldable: null   ✓ <interactive> passed 100 tests.
+Foldable: length   ✓ <interactive> passed 100 tests.
+
+---------------
+-- MyIdent a --
+---------------
+
+Show: ShowsPrec Zero   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showsPrec   ✓ <interactive> passed 100 tests.
+Show: Equivariance: showList   ✓ <interactive> passed 100 tests.
+Eq: Transitive   ✓ <interactive> passed 100 tests.
+Eq: Symmetric   ✓ <interactive> passed 100 tests.
+Eq: Reflexive   ✓ <interactive> passed 100 tests.
+Eq: Negation   ✓ <interactive> passed 100 tests.
+
+
+All tests succeeded
+Test suite test-dredd: PASS
