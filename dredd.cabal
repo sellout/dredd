@@ -46,7 +46,8 @@ library test-lib
   build-depends:       base >=4.14 && <4.15,
                        dredd
   default-language:    Haskell2010
-  exposed-modules:     My.Test.Mod
+  exposed-modules:     My.Test.Mod,
+                       My.Test.ModF
   ghc-options:         -Wall -Werror -fplugin Dredd
   hs-source-dirs:      test-lib
 
@@ -58,6 +59,7 @@ library test-lib-testing
                        test-lib
   default-language:    Haskell2010
   exposed-modules:     My.Test.Mod.Gen
+                       My.Test.ModF.Gen
   ghc-options:         -Wall -Werror
   hs-source-dirs:      test-lib-testing
      
@@ -74,5 +76,6 @@ test-suite test-dredd
   ghc-options:         -Wall -Werror
   hs-source-dirs:      dredd
   main-is:             Main.hs
-  other-modules:       Judge.Dredd.My.Test.Mod
+  other-modules:       Judge.Dredd.My.Test.Mod,
+                       Judge.Dredd.My.Test.ModF
   type:                exitcode-stdio-1.0
