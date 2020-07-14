@@ -91,7 +91,21 @@ genMap =
   Map.fromList
   [("All", SourceGen.op (SourceGen.var "All") "<$>" (SourceGen.var "bool")),
    ("Any", SourceGen.op (SourceGen.var "Any") "<$>" (SourceGen.var "bool")),
-   ("Bool", SourceGen.var "bool")
+   ("Bool", SourceGen.var "bool"),
+   ("Char", SourceGen.var "unicodeAll"),
+   ("Either", SourceGen.var "Either"),
+   ("Int", SourceGen.var "enumBounded"),
+   ("Int8", SourceGen.var "enumBounded"),
+   ("Int16", SourceGen.var "enumBounded"),
+   ("Int32", SourceGen.var "enumBounded"),
+   ("Int64", SourceGen.var "enumBounded"),
+   ("Maybe", SourceGen.var "maybe"),
+   ("Ordering", SourceGen.var "enumBounded"),
+   ("Word", SourceGen.var "enumBounded"),
+   ("Word8", SourceGen.var "enumBounded"),
+   ("Word16", SourceGen.var "enumBounded"),
+   ("Word32", SourceGen.var "enumBounded"),
+   ("Word64", SourceGen.var "enumBounded")
   ]
 
 lawFunctionName :: SourceGen.OccNameStr
