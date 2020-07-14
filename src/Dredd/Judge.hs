@@ -8,7 +8,7 @@ import Control.Arrow ((***))
 import Control.Monad ((<=<), join)
 import qualified Data.Char
 import Data.Foldable (find)
-import Data.List.NonEmpty (NonEmpty (..))
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import Data.String (fromString)
 import qualified GHC
@@ -18,6 +18,7 @@ import qualified HscTypes
 import qualified InstEnv
 import qualified Name
 import qualified Outputable
+import qualified TcType
 
 loadModuleSummary ::
   GHC.GhcMonad m =>
@@ -41,19 +42,34 @@ processModule = fmap GHC.moduleInfo . GHC.typecheckModule <=< GHC.parseModule
 -- | Currently, this just turns it into a String, but we should be building a
 --   new (source) module here for our test suite.
 processInstance :: GHC.ClsInst -> SourceGen.HsExpr'
-processInstance ci = do
-  let (_, cls, [ty]) = InstEnv.instanceHead ci
-      tyName = Outputable.showSDocUnsafe $ Outputable.ppr ty
-      tyComponentNames = fromMaybe (error "invalid type") $ typeComponentNames ty
-      lawsName = (<> "Laws") . fnHead Data.Char.toLower $ Name.getOccString cls
-      genNames = fmap ("gen" <>) tyComponentNames
-   in SourceGen.tuple
-      [ SourceGen.string tyName,
-        SourceGen.list
-        [ foldr1 (SourceGen.@@) . fmap (SourceGen.var . fromString)
-          $ lawsName :| genNames
-        ]
-      ]
+processInstance = processInstance' . TcType.tcSplitDFunTy . GhcPlugins.idType . InstEnv.is_dfun
+
+-- | The GHC docs on this aren't good, so ... in the example instance definition,
+--
+-- > instance (Monoid a, Semigroup b) => MyClass (Foo a) (Bar b)
+--
+--   the arguments to this function would look a bit like
+--
+-- > ([a, b], [Monoid a, Semigroup b], MyClass, [Foo a, Bar b])
+processInstance' :: ([GHC.TyVar], [GHC.Type], GHC.Class, [GHC.Type]) -> SourceGen.HsExpr'
+processInstance' = \case
+  ([], [], cls, tys) ->
+    let tyNames = intercalate ", " $ Outputable.showSDocUnsafe . Outputable.ppr <$> tys
+        tyComponentNames = fromMaybe (error "invalid type") . typeComponentNames <$> tys
+        lawsName = (<> "Laws") . fnHead Data.Char.toLower $ Name.getOccString cls
+        genNames = fmap (fmap ("gen" <>)) tyComponentNames
+    in SourceGen.tuple
+       [ SourceGen.string tyNames,
+         SourceGen.list
+         [ foldl
+           (\x -> (x SourceGen.@@) . foldr1 (SourceGen.@@) . fmap (SourceGen.var . fromString))
+           (SourceGen.var $ fromString lawsName :: SourceGen.HsExpr')
+           genNames
+         ]
+       ]
+  (_, [], _, _) -> error "class has type vars"
+  ([], _, _, _) -> error "class has constraints"
+  (_, _, _, _) -> error "class has multiple bad things"
 
 typeComponentNames :: GhcPlugins.Type -> Maybe [String]
 typeComponentNames =
