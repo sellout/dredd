@@ -19,14 +19,7 @@ instance Semigroup Meh where
   x <> _ = x
 
 newtype Mep a = Mep (Maybe a)
---   NB: These would have type vars and constraints, so we can't use them yet.
---   deriving (Eq, Show)
+  deriving (Eq, Show)
 
-instance Eq (Mep Simple) where
-  Mep x == Mep y = x == y
-
-instance Show (Mep Simple) where
-  show (Mep x) = show x
-
-instance Semigroup (Mep Simple) where
+instance Semigroup (Mep a) where
   x <> _ = x

@@ -9,6 +9,7 @@ import Control.Monad ((<=<), join)
 import qualified Data.Char
 import Data.Foldable (find)
 import Data.List (intercalate)
+import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.String (fromString)
 import qualified GHC
@@ -53,29 +54,46 @@ processInstance = processInstance' . TcType.tcSplitDFunTy . GhcPlugins.idType . 
 -- > ([a, b], [Monoid a, Semigroup b], MyClass, [Foo a, Bar b])
 processInstance' :: ([GHC.TyVar], [GHC.Type], GHC.Class, [GHC.Type]) -> SourceGen.HsExpr'
 processInstance' = \case
-  ([], [], cls, tys) ->
+  -- TODO: Don't ignore constraints.
+  (_, _, cls, tys) ->
     let tyNames = intercalate ", " $ Outputable.showSDocUnsafe . Outputable.ppr <$> tys
-        tyComponentNames = fromMaybe (error "invalid type") . typeComponentNames <$> tys
+        tyComponentNames = typeComponentNames <$> tys
         lawsName = (<> "Laws") . fnHead Data.Char.toLower $ Name.getOccString cls
-        genNames = fmap (fmap ("gen" <>)) tyComponentNames
+        genNames =
+          fmap
+          ( fmap
+            (\tyName ->
+               fromMaybe (SourceGen.var . fromString $ "gen" <> tyName)
+               $ Map.lookup tyName genMap
+            )
+          )
+          tyComponentNames
     in SourceGen.tuple
        [ SourceGen.string tyNames,
          SourceGen.list
          [ foldl
-           (\x -> (x SourceGen.@@) . foldr1 (SourceGen.@@) . fmap (SourceGen.var . fromString))
+           (\x -> (x SourceGen.@@) . foldr1 (SourceGen.@@))
            (SourceGen.var $ fromString lawsName :: SourceGen.HsExpr')
            genNames
          ]
        ]
-  (_, [], _, _) -> error "class has type vars"
-  ([], _, _, _) -> error "class has constraints"
-  (_, _, _, _) -> error "class has multiple bad things"
 
-typeComponentNames :: GhcPlugins.Type -> Maybe [String]
-typeComponentNames =
-  uncurry (fmap . (:))
-  . (Name.getOccString *** fmap join . traverse typeComponentNames)
-  <=< GhcPlugins.splitTyConApp_maybe
+typeComponentNames :: GhcPlugins.Type -> [String]
+typeComponentNames ty =
+  maybe
+    ["All"] -- TODO: this is going to depend on the kind.
+    (uncurry (:) . (Name.getOccString *** join . fmap typeComponentNames))
+  $ GhcPlugins.splitTyConApp_maybe ty
+
+-- | This gives us a way to lookup generators that don't match the default
+--   naming (e.g., all the ones in Hedgehog itself).
+genMap :: Map.Map String SourceGen.HsExpr'
+genMap =
+  Map.fromList
+  [("All", SourceGen.op (SourceGen.var "All") "<$>" (SourceGen.var "bool")),
+   ("Any", SourceGen.op (SourceGen.var "Any") "<$>" (SourceGen.var "bool")),
+   ("Bool", SourceGen.var "bool")
+  ]
 
 lawFunctionName :: SourceGen.OccNameStr
 lawFunctionName = "dreddLaws"
@@ -86,7 +104,9 @@ processInstances modu insts =
    in SourceGen.module'
       (Just . fromString $ "Judge.Dredd." <> moduName)
       (Just [SourceGen.var "dreddLaws"])
-      [ SourceGen.import' "Hedgehog.Classes",
+      [ SourceGen.import' "Data.Monoid",
+        SourceGen.import' "Hedgehog.Classes",
+        SourceGen.import' "Hedgehog.Gen",
         SourceGen.exposing (SourceGen.import' "Data.Sort") [SourceGen.var "monoidSortAssocs"],
         SourceGen.import' . fromString $ moduName <> ".Gen"
       ]
