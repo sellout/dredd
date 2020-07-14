@@ -20,7 +20,8 @@ library
                        filepath,
                        ghc,
                        ghc-paths,
-                       ghc-source-gen
+                       ghc-source-gen,
+                       sort
   default-language:    Haskell2010
   exposed-modules:     Dredd,
                        Dredd.IO,
@@ -69,7 +70,6 @@ test-suite test-dredd
                        dredd,
                        hedgehog,
                        hedgehog-classes,
-                       sort,
                        test-lib,
                        test-lib-testing
   default-language:    Haskell2010

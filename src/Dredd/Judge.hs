@@ -11,6 +11,7 @@ import Data.Foldable (find)
 import Data.List (intercalate)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
+import Data.Sort (monoidSortAssocs)
 import Data.String (fromString)
 import qualified GHC
 import qualified GHC.SourceGen as SourceGen
@@ -42,7 +43,7 @@ processModule = fmap GHC.moduleInfo . GHC.typecheckModule <=< GHC.parseModule
 
 -- | Currently, this just turns it into a String, but we should be building a
 --   new (source) module here for our test suite.
-processInstance :: GHC.ClsInst -> SourceGen.HsExpr'
+processInstance :: GHC.ClsInst -> (String, [SourceGen.HsExpr'])
 processInstance = processInstance' . TcType.tcSplitDFunTy . GhcPlugins.idType . InstEnv.is_dfun
 
 -- | The GHC docs on this aren't good, so ... in the example instance definition,
@@ -52,7 +53,7 @@ processInstance = processInstance' . TcType.tcSplitDFunTy . GhcPlugins.idType . 
 --   the arguments to this function would look a bit like
 --
 -- > ([a, b], [Monoid a, Semigroup b], MyClass, [Foo a, Bar b])
-processInstance' :: ([GHC.TyVar], [GHC.Type], GHC.Class, [GHC.Type]) -> SourceGen.HsExpr'
+processInstance' :: ([GHC.TyVar], [GHC.Type], GHC.Class, [GHC.Type]) -> (String, [SourceGen.HsExpr'])
 processInstance' = \case
   -- TODO: Don't ignore constraints.
   (_, _, cls, tys) ->
@@ -68,15 +69,13 @@ processInstance' = \case
             )
           )
           tyComponentNames
-    in SourceGen.tuple
-       [ SourceGen.string tyNames,
-         SourceGen.list
+    in ( tyNames,
          [ foldl
            (\x -> (x SourceGen.@@) . foldr1 (SourceGen.@@))
            (SourceGen.var $ fromString lawsName :: SourceGen.HsExpr')
            genNames
          ]
-       ]
+       )
 
 typeComponentNames :: GhcPlugins.Type -> [String]
 typeComponentNames ty =
@@ -107,18 +106,16 @@ processInstances modu insts =
       [ SourceGen.import' "Data.Monoid",
         SourceGen.import' "Hedgehog.Classes",
         SourceGen.import' "Hedgehog.Gen",
-        SourceGen.exposing (SourceGen.import' "Data.Sort") [SourceGen.var "monoidSortAssocs"],
         SourceGen.import' . fromString $ moduName <> ".Gen"
       ]
       [ SourceGen.typeSig lawFunctionName
         $ SourceGen.var "IO" SourceGen.@@ SourceGen.var "Bool",
         SourceGen.valBind lawFunctionName
-        $ SourceGen.op
-          (SourceGen.var "lawsCheckMany")
-          "$"
-          ( SourceGen.var "monoidSortAssocs"
-            SourceGen.@@ SourceGen.list (fmap processInstance insts)
-          )
+        $ SourceGen.var "lawsCheckMany"
+          SourceGen.@@ SourceGen.list
+                       (fmap (\(x, y) -> SourceGen.tuple [SourceGen.string x, SourceGen.list y])
+                        . monoidSortAssocs
+                        $ fmap processInstance insts)
       ]
 
 fnHead :: (a -> a) -> [a] -> [a]

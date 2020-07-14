@@ -41,6 +41,8 @@ test-suite my-test
 {-# options_ghc -F -pgmF lawmaster #-}
 ```
 
+The [test output](data/test-dredd.log) is just that from hedgehog-classes, but here you get all those property tests from a couple [small](test-lib/My/Test/Mod.hs) [modules](test-lib/My/Test/ModF.hs).
+
 ### NOTE
 
 To test this package, it's necessary to do `cabal install && cabal test` because
@@ -64,27 +66,27 @@ instance MyTypeClass MyType
 ```
 will generate a test module that looks like
 ```haskell
-module Test.Dredd.MyModule (dreddLaws) where
+module Judge.Dredd.MyModule (dreddLaws) where
 
 import Hedgehog.Classes
 import MyModule.Gen
 
-dreddLaws :: [(String, [Laws])]
+dreddLaws :: IO Bool
 dreddLaws =
-  [ ("MyType", [myTypeClassLaws genMyType]),
-    ...
-  ]
+  = lawsCheckMany
+      [("MyType", [myTypeClassLaws genMyType]),
+       ...]
 ```
 and the generated driver looks something like
 ```haskell
 module Main (main) where
 
-import Data.Functor (void)
 import Hedgehog.Classes (lawsCheckmMany)
+import Hedgehog.Main (defaultMain)
 import qualified Judge.Dredd.MyModule.Gen
 
 main :: IO ()
-main = void . lawsCheckMany $ mconcat [Judge.Dredd.MyModule.Gen.dreddLaws, ...]
+main = defaultMain [Judge.Dredd.MyModule.Gen.dreddLaws, ...]
 ```
 
 ## ToDo
