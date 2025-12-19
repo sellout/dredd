@@ -14,7 +14,7 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
 library
-  build-depends:       base >=4.14 && <4.15,
+  build-depends:       base >=4.14 && <4.23,
                        containers,
                        directory,
                        filepath,
@@ -30,7 +30,7 @@ library
   hs-source-dirs:      src
 
 executable lawmaster
-  build-depends:       base >=4.14 && <4.15,
+  build-depends:       base >=4.14 && <4.23,
                        dredd,
                        filepath,
                        ghc,
@@ -44,7 +44,7 @@ executable lawmaster
 
 -- An example library, which wants to have its laws tested.
 library test-lib
-  build-depends:       base >=4.14 && <4.15,
+  build-depends:       base >=4.14 && <4.23,
                        dredd
   default-language:    Haskell2010
   exposed-modules:     My.Test.Mod,
@@ -55,7 +55,7 @@ library test-lib
 -- The testing support library for the example library. (This is where the
 -- `Gen`s for any types and `Laws` for any classes are defined.)
 library test-lib-testing
-  build-depends:       base >=4.14 && <4.15,
+  build-depends:       base >=4.14 && <4.23,
                        hedgehog,
                        test-lib
   default-language:    Haskell2010
@@ -66,7 +66,7 @@ library test-lib-testing
      
 -- The test suite that tests the laws for the example library
 test-suite test-dredd
-  build-depends:       base >=4.14 && <4.15,
+  build-depends:       base >=4.14 && <4.23,
                        dredd,
                        hedgehog,
                        hedgehog-classes,
